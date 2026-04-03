@@ -1,8 +1,10 @@
 import { GoogleLogin } from '@react-oauth/google'
 import React, { useEffect, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 const LoginPage = ({ register }) => {
+    const {registerIn , handleRegisterIn} = useForm()
     const [passwordType, setPasswodType] = useState('password')
     const [registerUser, setRegisterUser] = useState({
         fullName: '',
@@ -124,6 +126,8 @@ const LoginPage = ({ register }) => {
                     username: loginEmail,
                     password
                 }
+                navigate('/') 
+                return
                 const result = await AxiosCall('POST', 'user/login', dataBody)
                 if (result?.status == 200 && result?.data?.data?.userDetails?.role === 'client') {
                     FireToast(result?.data?.message, "success")
@@ -258,7 +262,7 @@ const LoginPage = ({ register }) => {
                                 />
                             </div>
                         </div>}
-                        <div>
+                        <div className='mt-2'>
                             <label htmlFor="email" className="block text-sm/6 font-medium text-gray-500">
                                 Email
                             </label>
@@ -283,7 +287,7 @@ const LoginPage = ({ register }) => {
                             </div>
                         </div>
                         {emailValidationErrorText && <span className='text-red-500 text-xs text-center'>{emailValidationErrorText}</span>}
-                        {register && <div>
+                        {register && <div className='mt-2'>
                             <label htmlFor="phoneNumber" className="block text-sm/6 font-medium text-gray-500">
                                 Phone Number
                             </label>
@@ -300,7 +304,7 @@ const LoginPage = ({ register }) => {
                             </div>
                         </div>}
 
-                        {!register && <div>
+                        {!register && <div className='mt-2'>
                             <div className="flex items-center justify-between">
                                 <label htmlFor="password" className="block text-sm/6 font-medium text-gray-500">
                                     Password
@@ -342,7 +346,7 @@ const LoginPage = ({ register }) => {
                             </div>
                             {passwordTextForValidation && <span className='text-red-500 text-xs text-center'>{passwordTextForValidation}</span>}
                         </div>}
-                        <div className='mt-2'>
+                        <div className='mt-4'>
                             <button type='submit' className="flex w-full justify-center items-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                             >{register ? 'Sign Up' : 'Sign in'} {isLoadingLogin && <Spinner />}</button>
                         </div>
