@@ -14,8 +14,9 @@ const MainLayout = () => {
                     <Sidebar />
                 </div>
                 <div className='flex-1 flex flex-col bg-[#EBF4F6]'>
-                    <div className="h-17 flex items-center px-4 bg-[#EBF4F6] ">
-                        Chat Header
+                    <div className="h-17 flex justify-between items-center px-4 bg-[#EBF4F6] ">
+                        <span>Chat Header</span>
+                        <button><i className="fa-solid fa-ellipsis-vertical cursor-pointer"></i></button>
                     </div>
                     <HomePage />
                 </div>
