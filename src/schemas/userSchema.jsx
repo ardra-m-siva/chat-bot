@@ -20,7 +20,10 @@ export const registerSchema = z.object({
         .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
 })
 
-export const loginSchema = registerSchema.pick({
-    email: true,
-    password: true,
+export const loginSchema = z.object({
+    loginId: z.union([
+        z.string().email("Invalid email address"),
+        z.string().min(1, "Username is required")
+      ]),
+    password: z.string().min(1, "Password is required"),
 });

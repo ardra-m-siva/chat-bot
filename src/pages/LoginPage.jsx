@@ -18,19 +18,18 @@ const LoginPage = ({ registerUser }) => {
 
     const handleRegisterLogin = async (data) => {
         console.log("here");
-        const { fullName, email, phoneNumber, password } = data
+        const { fullName, email, password, username, loginId } = data;
         if (registerUser) {
             try {
-                if (fullName && email && phoneNumber) {
+                if (fullName && email && username) {
                     const inputBody = {
-                        email,
-                        contactNo: phoneNumber,
                         name: fullName,
-                        // referalCode: null
+                        email,
+                        username,
+                        password
                     }
                     const result = await AxiosCall('POST', 'user/register', inputBody)
                     if (result?.status == 200) {
-
                         reset()
                         navigate('/login')
                     } else {
@@ -43,23 +42,15 @@ const LoginPage = ({ registerUser }) => {
         } else {
             try {
                 const dataBody = {
-                    username: email,
+                    loginId: loginId,
                     password
                 }
                 const result = await AxiosCall('POST', 'user/login', dataBody)
-                if (result?.status == 200 && result?.data?.data?.userDetails?.role === 'client') {
-                    localStorage.setItem('civilacquireToken', result?.data?.data?.token)
+                if (result?.status == 200) {
+                    localStorage.setItem('token', result?.data?.data?.token)
                     navigate('/')
                 } else {
-                    if (result?.status == 200) {
-                        console.log("Access denied");
-                        return
-                    }
-                    if (result?.response?.data?.message) {
-                        console.log(result?.response?.data?.message);
-                    } else {
-                        console.log(result?.message);
-                    }
+                    console.log(result?.message);
                 }
             } catch (error) {
                 console.log(error);
@@ -88,6 +79,23 @@ const LoginPage = ({ registerUser }) => {
                 </div>
                 <div className="mt-3 sm:mx-auto sm:w-full sm:max-w-sm">
                     <form onSubmit={handleSubmit(handleRegisterLogin)}>
+                        {!registerUser && <div>
+                            <label htmlFor="loginId" className="block text-xs/6 font-medium text-gray-500 uppercase">
+                                Email or Username
+                            </label>
+                            <div className="mt-2">
+                                <input
+                                    {...register('loginId')}
+                                    id="loginId"
+                                    name="loginId"
+                                    type="text"
+                                    required
+                                    autoComplete="email"
+                                    className="block w-full rounded-xl border border-gray-300 text-base outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#177896] focus:outline-[#177896] focus:border-[#177896] sm:text-sm/6 px-3 py-2"
+                                />
+                            </div>
+                            <span className='text-red-500 text-xs text-center'>{errors.fullName?.message}</span>
+                        </div>}
                         {registerUser && <div>
                             <label htmlFor="fullName" className="block text-xs/6 font-medium text-gray-500 uppercase">
                                 Name
@@ -133,7 +141,6 @@ const LoginPage = ({ registerUser }) => {
                                     name="username"
                                     type="text"
                                     required
-                                    autoComplete="tel"
                                     className="block w-full rounded-xl border border-gray-300 px-3 py-2 text-base outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#177896] focus:outline-[#177896] focus:border-[#177896] sm:text-sm/6"
                                 />
                             </div>
@@ -196,4 +203,4 @@ const LoginPage = ({ registerUser }) => {
     )
 }
 
-export default LoginPage
+export default LoginPage    

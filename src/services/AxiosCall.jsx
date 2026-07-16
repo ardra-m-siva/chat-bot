@@ -1,8 +1,6 @@
 import axios from "axios";
 import { baseUrl } from "./baseUrl";
 
-
-
 export const AxiosCall = async ({ method, endpoint, requestBody, headerData, isFormData }) => {
     try {
         const baseURL = baseUrl + endpoint
