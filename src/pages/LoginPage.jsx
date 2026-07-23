@@ -2,9 +2,9 @@ import { GoogleLogin } from '@react-oauth/google'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
-import { AxiosCall } from '../services/AxiosCall'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, registerSchema } from '../schemas/userSchema'
+import AxiosCall from '../services/AxiosCall'
 
 const LoginPage = ({ registerUser }) => {
     const schema = registerUser ? registerSchema : loginSchema
@@ -17,7 +17,7 @@ const LoginPage = ({ registerUser }) => {
     }, [])
 
     const handleRegisterLogin = async (data) => {
-        console.log("here");
+        console.log("here", data);
         const { fullName, email, password, username, loginId } = data;
         if (registerUser) {
             try {
@@ -29,6 +29,8 @@ const LoginPage = ({ registerUser }) => {
                         password
                     }
                     const result = await AxiosCall('POST', 'user/register', inputBody)
+                    console.log(result);
+                    
                     if (result?.status == 200) {
                         reset()
                         navigate('/login')
@@ -43,14 +45,16 @@ const LoginPage = ({ registerUser }) => {
             try {
                 const dataBody = {
                     loginId: loginId,
-                    password
+                    loginPassword: password
                 }
-                const result = await AxiosCall('POST', 'user/login', dataBody)
+                const result = await AxiosCall('POST', 'user/login', dataBody);
                 if (result?.status == 200) {
-                    localStorage.setItem('token', result?.data?.data?.token)
+                    localStorage.setItem('user',result.data?.data?.user)
+                    reset()
                     navigate('/')
                 } else {
-                    console.log(result?.message);
+                    console.log(result);
+                    console.log(result.response.data.message);
                 }
             } catch (error) {
                 console.log(error);
@@ -60,20 +64,20 @@ const LoginPage = ({ registerUser }) => {
 
 
 
-    const handleSuccess = (credentialResponse) => {
+    // const handleSuccess = (credentialResponse) => {
         // const decoded = jwtDecode(credentialResponse.credential);
         // console.log(decoded);
         // Handle successful login
-    };
+    // };
 
-    const handleError = () => {
-        console.log('Login Failed');
+    // const handleError = () => {
+        // console.log('Login Failed');
         // Handle login failure
-    };
+    // };
     return (
         <>
             <div className="flex  h-screen justify-center flex-col items-center">
-                <div className="">
+                <div className="text-[#177896]">
                     {/* <img src="" alt="" /> */}
                     <h2 className="mt-5 text-center text-xl/9 font-bold tracking-tight">{registerUser ? 'Sign Up' : 'Sign In'}</h2>
                 </div>
@@ -113,7 +117,7 @@ const LoginPage = ({ registerUser }) => {
                             </div>
                             <span className='text-red-500 text-xs text-center'>{errors.fullName?.message}</span>
                         </div>}
-                        <div className='mt-2'>
+                        {registerUser && <div className='mt-2'>
                             <label htmlFor="email" className="block text-xs/6 font-medium text-gray-500 uppercase">
                                 Email
                             </label>
@@ -128,7 +132,7 @@ const LoginPage = ({ registerUser }) => {
                                     className="block w-full rounded-xl border border-gray-300 px-3 py-2 text-base outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#177896] focus:outline-[#177896] focus:border-[#177896] sm:text-sm/6"
                                 />
                             </div>
-                        </div>
+                        </div>}
                         <span className='text-red-500 text-xs text-center'>{errors.email?.message}</span>
                         {registerUser && <div className='mt-2'>
                             <label htmlFor="username" className="block text-xs/6 font-medium text-gray-500 uppercase">
@@ -197,7 +201,7 @@ const LoginPage = ({ registerUser }) => {
                     </p>
                 </div>
                 <div className='mb-3'>or</div>
-                <GoogleLogin onSuccess={handleSuccess} onError={handleError} width="210px" theme='outline ' shape='pill' />
+                {/* <GoogleLogin onSuccess={handleSuccess} onError={handleError} width="210px" theme='outline ' shape='pill' /> */}
             </div>
         </>
     )
