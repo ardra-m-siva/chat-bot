@@ -17,7 +17,6 @@ const LoginPage = ({ registerUser }) => {
     }, [])
 
     const handleRegisterLogin = async (data) => {
-        console.log("here", data);
         const { fullName, email, password, username, loginId } = data;
         if (registerUser) {
             try {
@@ -28,18 +27,16 @@ const LoginPage = ({ registerUser }) => {
                         username,
                         password
                     }
-                    const result = await AxiosCall('POST', 'user/register', inputBody)
-                    console.log(result);
-                    
+                    const result = await AxiosCall('POST', 'user/register', inputBody)    
                     if (result?.status == 200) {
                         reset()
                         navigate('/login')
                     } else {
-                        console.log(result?.response?.data?.message);
+                        console.warn(result?.response?.data?.message);
                     }
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         } else {
             try {
@@ -53,11 +50,11 @@ const LoginPage = ({ registerUser }) => {
                     reset()
                     navigate('/')
                 } else {
-                    console.log(result);
-                    console.log(result.response.data.message);
+                    console.warn(result);
+                    console.warn(result.response.data.message);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         }
     }

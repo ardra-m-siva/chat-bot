@@ -1,14 +1,105 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import AxiosCall from '../services/AxiosCall';
+import socket from '../socket/socket';
+import { AuthContext } from '../contexts/AuthContext';
 
-const HomePage = () => {
+const HomePage = ({ selectedChat }) => {
+  const [allMessageList, setAllMessageList] = useState([])
+  const [text, setText] = useState('')
+  const { user } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (selectedChat) {
+      getAllMessages()
+    }
+  }, [selectedChat])
+
+  const getAllMessages = async () => {
+    try {
+      const result = await AxiosCall('GET', `messages?chatId=${selectedChat?._id}`,)
+      console.log(result);
+      if (result?.status == 200) {
+        setAllMessageList(result.data?.data)
+        setText('')
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (socket.connected) {
+      socket.emit("join", user.id);
+    }
+
+    socket.on("connect", () => {
+      socket.emit("join", user.id);
+    });
+
+    socket.on("receiveMessage", (data) => {
+      setAllMessageList(prev => [...prev, data]);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("receiveMessage");
+    };
+  }, [user]);
+
+  const sendMessage = async () => {
+    try {
+      const result = await AxiosCall('POST', `messages`, { chatId: selectedChat?._id, text })
+      if (result.status == 200) {
+        console.log(result.data.message);
+        getAllMessages()
+      }
+    } catch (error) {
+      console.error(error);
+
+    }
+  }
+
   return (
-    <div className='h-screen flex flex-col justify-between bg-[#7ab2b23d] p-2'>
-      <div>
-        
+    <div className='flex-1 flex flex-col min-h-0 bg-[#7ab2b23d] p-2'>
+      <div className='overflow-y-auto flex-1 p-4'>
+        {
+          allMessageList?.map((message, index) => {
+            const isMe = message.senderId === user.id;
+            const prevMessage = allMessageList[index - 1];
+            const nextMessage = allMessageList[index + 1];
+
+            const isFirstInGroup = !prevMessage || prevMessage.senderId !== message.senderId;
+            const isLastInGroup = !nextMessage || nextMessage.senderId !== message.senderId;
+
+
+            return (
+              <div key={message._id}
+                className={`${isMe ? "text-right " : "text-left"} my-1 `}>
+                <span className={`
+                ${isFirstInGroup ? "rounded-tr-2xl" : ""}
+                ${isLastInGroup ? "rounded-br-2xl" : ""} 
+               ${isMe ? `bg-[#09637E] text-white rounded-l-2xl ` : `bg-white`}
+              px-3 py-2 inline-block 
+              `}
+                  key={index}>{message.text}</span>
+              </div>
+            )
+          })
+        }
       </div>
-      <div className='w-full flex mb-3 px-3'>
-        <input type="text" className='border w-full border-[#09637E] rounded-md py-2 px-3 me-3 focus:outline-none focus:ring-1 focus:ring-[#09637E] transition-all' placeholder='Message'/>
-        <button className='bg-[#09637E] text-white py-2 px-3 rounded-md'><i className="fa-regular fa-paper-plane"></i></button>
+      <div className='w-full flex my-2 px-3  shrink-0'>
+        <input value={text} onChange={(e) => setText(e.target.value)} type="text" className='border w-full border-[#09637E] rounded-md py-2 px-3 me-3 focus:outline-none focus:ring-1 focus:ring-[#09637E] transition-all' placeholder='Message' />
+        <button aria-label='send message' onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            sendMessage();
+          }
+        }}
+          onClick={sendMessage}
+          className='bg-[#09637E] text-white py-2 px-3 rounded-md'>
+          <i className="fa-regular fa-paper-plane"></i>
+        </button>
       </div>
     </div>
   )

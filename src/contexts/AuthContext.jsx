@@ -9,7 +9,7 @@ export const AuthenticationProvider = ({ children }) => {
         const checkAuthentication = async () => {
             try {
                 const response = await AxiosCall('GET', 'user/me')
-                setUser(response.data)
+                setUser(response.data?.data)
             } catch {
                 setUser(null)
             }
@@ -17,7 +17,7 @@ export const AuthenticationProvider = ({ children }) => {
         checkAuthentication();
     }, [])
     return (
-        <AuthContext.Provider value={user, setUser}>
+        <AuthContext.Provider value={{ user, setUser }}>
             {children}
         </AuthContext.Provider>
     )

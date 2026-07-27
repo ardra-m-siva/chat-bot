@@ -20,6 +20,12 @@ export default async function AxiosCall(method, endpoint, requestBody, headerDat
         const response = await axios(requestConfig)
         return response
     } catch (error) {
+        if (error.response.status == 401) {
+            console.error('Unauthorized access')
+            if (window.location.pathname !== "/login") {
+                window.location.href = "/login";
+            }
+        }
         return error
     }
 }

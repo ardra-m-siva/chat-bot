@@ -1,7 +1,24 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import AxiosCall from '../services/AxiosCall'
 
-const Sidebar = () => {
-    
+const Sidebar = ({ chatList, setChatList, selectedChat, setselectedChat }) => {
+
+    useEffect(() => {
+        fetchChatList()
+    }, [])
+
+    async function fetchChatList() {
+        try {
+            const result = await AxiosCall('GET', 'chats', {})
+            console.log(result);
+
+            if (result.status == 200) {
+                setChatList(result.data?.data)
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
     return (
         <div className="w-80 h-screen flex flex-col text-white">
             {/* Header */}
@@ -11,16 +28,11 @@ const Sidebar = () => {
             </div>
             <div className='w-full'>
                 <ul>
-                    <li className=' p-4 flex items-center gap-2'>
-                        <img src="https://cdn-icons-png.freepik.com/512/8742/8742495.png" alt="" className='rounded-full w-8 h-8' />
-                        <span>Ameer</span>
-                    </li>
-
-                    <li className='bg-[#088295c7] p-4 flex items-center gap-2'>
-                        <img src="https://cdn-icons-png.freepik.com/512/8742/8742495.png" alt="" className='rounded-full w-8 h-8' />
-                        <span>Ardra</span>
-                    </li>
-
+                    {chatList?.length > 0 && chatList?.map((chat, index) => (
+                        <li onClick={() => setselectedChat(chat)} key={index} className={`${selectedChat?._id == chat._id ? 'bg-[#088295c7] ' : ''} p-4 flex items-center gap-2 cursor-pointer`}>
+                            <img src={chat?.participants[0]?.avatar ? chat?.participants[0]?.avatar : "https://cdn-icons-png.freepik.com/512/8742/8742495.png"} alt="" className='rounded-full w-8 h-8' />
+                            <span>{chat?.participants[0]?.name}</span>
+                        </li>))}
                 </ul>
             </div>
         </div>
