@@ -59,8 +59,6 @@ const LoginPage = ({ registerUser }) => {
         }
     }
 
-
-
     // const handleSuccess = (credentialResponse) => {
         // const decoded = jwtDecode(credentialResponse.credential);
         // console.log(decoded);

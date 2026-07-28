@@ -31,11 +31,11 @@ const HomePage = ({ selectedChat }) => {
     if (!user) return;
 
     if (socket.connected) {
-      socket.emit("join", user.id);
+      socket.emit("join", user?.id);
     }
 
     socket.on("connect", () => {
-      socket.emit("join", user.id);
+      socket.emit("join", user?.id);
     });
 
     socket.on("receiveMessage", (data) => {
@@ -52,7 +52,7 @@ const HomePage = ({ selectedChat }) => {
     try {
       const result = await AxiosCall('POST', `messages`, { chatId: selectedChat?._id, text })
       if (result.status == 200) {
-        console.log(result.data.message);
+        console.log(result.data?.message);
         getAllMessages()
       }
     } catch (error) {
@@ -72,18 +72,25 @@ const HomePage = ({ selectedChat }) => {
 
             const isFirstInGroup = !prevMessage || prevMessage.senderId !== message.senderId;
             const isLastInGroup = !nextMessage || nextMessage.senderId !== message.senderId;
-
+            const isSingleMessage = isFirstInGroup && isLastInGroup;
 
             return (
               <div key={message._id}
                 className={`${isMe ? "text-right " : "text-left"} my-1 `}>
                 <span className={`
-                ${isFirstInGroup ? "rounded-tr-2xl" : ""}
-                ${isLastInGroup ? "rounded-br-2xl" : ""} 
-               ${isMe ? `bg-[#09637E] text-white rounded-l-2xl ` : `bg-white`}
-              px-3 py-2 inline-block 
-              `}
-                  key={index}>{message.text}</span>
+                px-3 py-2 inline-block ${isMe
+                    ? isSingleMessage
+                      ? "bg-[#09637E] text-white rounded-2xl"
+                      : `bg-[#09637E] text-white rounded-l-2xl
+                        ${isFirstInGroup ? "rounded-tr-2xl" : "rounded-tr-md"}
+                        ${isLastInGroup ? "rounded-br-2xl" : "rounded-br-md"}`
+                    : isSingleMessage
+                      ? "bg-white rounded-2xl"
+                      : `bg-white rounded-r-2xl
+                        ${isFirstInGroup ? "rounded-tl-2xl" : "rounded-tl-md"}
+                        ${isLastInGroup ? "rounded-bl-2xl" : "rounded-bl-md"}`
+                  } `}
+                  key={index}>{message.text} <span className='text-[10px] '>{new Date(message?.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", })} <i className="fa-solid fa-check"></i></span></span>
               </div>
             )
           })
@@ -97,7 +104,7 @@ const HomePage = ({ selectedChat }) => {
           }
         }}
           onClick={sendMessage}
-          className='bg-[#09637E] text-white py-2 px-3 rounded-md'>
+          className='bg-[#09637E] text-white py-2 px-3 rounded-md cursor-pointer'>
           <i className="fa-regular fa-paper-plane"></i>
         </button>
       </div>
