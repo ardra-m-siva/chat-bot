@@ -27,7 +27,7 @@ const LoginPage = ({ registerUser }) => {
                         username,
                         password
                     }
-                    const result = await AxiosCall('POST', 'user/register', inputBody)    
+                    const result = await AxiosCall('POST', 'user/register', inputBody)
                     if (result?.status == 200) {
                         reset()
                         navigate('/login')
@@ -46,7 +46,7 @@ const LoginPage = ({ registerUser }) => {
                 }
                 const result = await AxiosCall('POST', 'user/login', dataBody);
                 if (result?.status == 200) {
-                    localStorage.setItem('user',result.data?.data?.user)
+                    localStorage.setItem('user', result.data?.data?.user)
                     reset()
                     navigate('/')
                 } else {
@@ -59,16 +59,18 @@ const LoginPage = ({ registerUser }) => {
         }
     }
 
-    // const handleSuccess = (credentialResponse) => {
-        // const decoded = jwtDecode(credentialResponse.credential);
-        // console.log(decoded);
-        // Handle successful login
-    // };
+    const handleSuccess = async (credentialResponse) => {
+        const credential = credentialResponse.credential
+        console.log(credential);
+        const result = await AxiosCall('POST', 'user/google', { credential })
+        console.log(result);
+        // ! Handle login success
+    };
 
-    // const handleError = () => {
-        // console.log('Login Failed');
-        // Handle login failure
-    // };
+    const handleError = () => {
+        console.log('Login Failed');
+        // ! Handle login failure
+    };
     return (
         <>
             <div className="flex  h-screen justify-center flex-col items-center">
@@ -196,7 +198,7 @@ const LoginPage = ({ registerUser }) => {
                     </p>
                 </div>
                 <div className='mb-3'>or</div>
-                {/* <GoogleLogin onSuccess={handleSuccess} onError={handleError} width="210px" theme='outline ' shape='pill' /> */}
+                <GoogleLogin onSuccess={handleSuccess} onError={handleError} width="210px" theme='outline ' shape='pill' />
             </div>
         </>
     )

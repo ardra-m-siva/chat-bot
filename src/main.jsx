@@ -8,12 +8,12 @@ import { AuthenticationProvider } from './contexts/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthenticationProvider>
-      <GoogleOAuthProvider clientId="GOOGLE_CLIENT_ID">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <AuthenticationProvider>
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </GoogleOAuthProvider>
-    </AuthenticationProvider>
+      </AuthenticationProvider>
+    </GoogleOAuthProvider>
   </StrictMode>,
 )
