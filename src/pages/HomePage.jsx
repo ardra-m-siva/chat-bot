@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import AxiosCall from '../services/AxiosCall';
 import socket from '../socket/socket';
 import { AuthContext } from '../contexts/AuthContext';
@@ -7,6 +7,7 @@ const HomePage = ({ selectedChat }) => {
   const [allMessageList, setAllMessageList] = useState([])
   const [text, setText] = useState('')
   const { user } = useContext(AuthContext)
+  const bottomRef = useRef(null);
 
   useEffect(() => {
     if (selectedChat) {
@@ -47,6 +48,13 @@ const HomePage = ({ selectedChat }) => {
       socket.off("receiveMessage");
     };
   }, [user]);
+
+  useEffect(() => {
+    bottomRef.current.scrollIntoView({
+      bahavior: 'smooth',
+      block: 'end'
+    })
+  }, [allMessageList])
 
   const sendMessage = async () => {
     try {
@@ -90,19 +98,25 @@ const HomePage = ({ selectedChat }) => {
                         ${isFirstInGroup ? "rounded-tl-2xl" : "rounded-tl-md"}
                         ${isLastInGroup ? "rounded-bl-2xl" : "rounded-bl-md"}`
                   } `}
-                  key={index}>{message.text} <span className='text-[10px] '>{new Date(message?.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", })} <i className="fa-solid fa-check"></i></span></span>
+                  key={index}>{message.text}
+                  <span className='text-[10px] '>
+                    {new Date(message?.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", })}
+                    <i className="fa-solid fa-check"></i>
+                  </span>
+                </span>
               </div>
             )
           })
         }
+        <div ref={bottomRef}></div>
       </div>
       <div className='w-full flex my-2 px-3  shrink-0'>
-        <input value={text} onChange={(e) => setText(e.target.value)} type="text" className='border w-full border-[#09637E] rounded-md py-2 px-3 me-3 focus:outline-none focus:ring-1 focus:ring-[#09637E] transition-all' placeholder='Message' />
-        <button aria-label='send message' onKeyDown={(e) => {
+        <input value={text} onKeyDown={(e) => {
           if (e.key === "Enter") {
             sendMessage();
           }
-        }}
+        }} onChange={(e) => setText(e.target.value)} type="text" className='border w-full border-[#09637E] rounded-md py-2 px-3 me-3 focus:outline-none focus:ring-1 focus:ring-[#09637E] transition-all' placeholder='Message' />
+        <button aria-label='send message'
           onClick={sendMessage}
           className='bg-[#09637E] text-white py-2 px-3 rounded-md cursor-pointer'>
           <i className="fa-regular fa-paper-plane"></i>
